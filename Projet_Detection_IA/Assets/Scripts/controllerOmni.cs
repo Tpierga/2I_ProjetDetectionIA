@@ -48,7 +48,7 @@ public class controllerOmni : MonoBehaviour
         }
         Forward();
         Rotate();
-        //Sensors();
+        Sensors();
     }
     
     private void LateUpdate()
