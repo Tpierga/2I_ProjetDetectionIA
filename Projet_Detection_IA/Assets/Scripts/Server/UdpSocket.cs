@@ -156,26 +156,30 @@ namespace ConsoleApplication1
                     SendImageToProcess(target, imageBytes1);
                     SendImageToProcess(target, imageBytes2);
                 }
-                var sendState = new State(_bufSize);
-                _socket.BeginSendTo(data, 0, data.Length, SocketFlags.None, target, (ar) =>
+                else
                 {
-                    var so = (State) ar.AsyncState;
-                    try
+                    var sendState = new State(_bufSize);
+                    _socket.BeginSendTo(data, 0, data.Length, SocketFlags.None, target, (ar) =>
                     {
-                        var bytes = _socket.EndSend(ar);
-                        if (_verbose)
+                        var so = (State) ar.AsyncState;
+                        try
                         {
-                            Debug.Log("SEND: {0}" + bytes.ToString());
+                            var bytes = _socket.EndSend(ar);
+                            if (_verbose)
+                            {
+                                Debug.Log("SEND: {0}" + bytes.ToString());
+                            }
                         }
-                    }
-                    catch
-                    {
-                        if (_verbose)
+                        catch
                         {
-                            Debug.Log("Unable to send message to: {0}" + target.ToString());
+                            if (_verbose)
+                            {
+                                Debug.Log("Unable to send message to: {0}" + target.ToString());
+                            }
                         }
-                    }
-                }, sendState);
+                    }, sendState);
+                }
+
             }
             catch
             {

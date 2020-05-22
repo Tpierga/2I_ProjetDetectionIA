@@ -1,4 +1,4 @@
-#!/home/iterator/PROROK/Omni/Projet-Detection-IA/server_side_python/venv/bin/python
+#!/home/iterator/PROROK/Omni/2I-Projet-Detection-IA/server_side_python/venv/bin/python
 # -*- coding: utf-8 -*-
 import re
 import sys

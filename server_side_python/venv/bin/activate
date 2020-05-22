@@ -37,7 +37,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="/home/iterator/PROROK/Omni/Projet-Detection-IA/server_side_python/venv"
+VIRTUAL_ENV="/home/iterator/PROROK/Omni/2I-Projet-Detection-IA/server_side_python/venv"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"

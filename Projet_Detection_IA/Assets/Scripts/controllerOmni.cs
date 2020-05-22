@@ -19,6 +19,7 @@ public class controllerOmni : MonoBehaviour
 
     private UdpSocket server = new UdpSocket();
     private int _t = 0;
+    private bool cameraRunning = false;
 
     public SnapShotCamera snapCam;
     // Start is called before the first frame update
@@ -41,14 +42,24 @@ public class controllerOmni : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space) && !cameraRunning)
+        {
+            cameraRunning = true;
+        }
+
+        else if (Input.GetKeyDown(KeyCode.Space) && cameraRunning)
+        {
+            cameraRunning = false;
+        }
+
+        if (cameraRunning)
         {
             snapCam.TakeSnapShot();
-            Debug.Log("snapshot Taken");
         }
         Forward();
         Rotate();
-        Sensors();
+        //Sensors();
+        
     }
     
     private void LateUpdate()

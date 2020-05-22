@@ -29,7 +29,7 @@ end
 # unset irrelevant variables
 deactivate nondestructive
 
-set -gx VIRTUAL_ENV "/home/iterator/PROROK/Omni/Projet-Detection-IA/server_side_python/venv"
+set -gx VIRTUAL_ENV "/home/iterator/PROROK/Omni/2I-Projet-Detection-IA/server_side_python/venv"
 
 set -gx _OLD_VIRTUAL_PATH $PATH
 set -gx PATH "$VIRTUAL_ENV/bin" $PATH

@@ -9,11 +9,18 @@ import pandas as pd
 from PIL import Image
 import io
 import time
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+from Window import Window
+import threading
+
+from DetectionAndTracking import detect_body
 
 
 class UdpSocket(Thread):
 
-    def __init__(self, buffer_size: Optional[int] = 64500) -> None:
+    def __init__(self, window: Window(), threading_event: threading.Event(),buffer_size: Optional[int] = 64500) -> None:
         """
         Default constructor for UdpSocket object
         :param buffer_size: The size of the buffer used for communication
@@ -30,6 +37,8 @@ class UdpSocket(Thread):
         self.is_not_first: bool = False
         self.time_rec: time = time.time()
         self.last_image: bytearray = bytearray()
+        self.window = window
+        self.threading_event = threading_event
 
     def start_socket(self, ip_address_server: str, port_server: int, password: Optional[str] = "") -> None:
         """
@@ -90,12 +99,12 @@ class UdpSocket(Thread):
         print(f"From : \nip address : {address[0]}\nport : {address[1]}")
         print(len(data))
         try:
-            if self.is_not_first and (time.time()-self.time_rec)<0.045:
+            if self.is_not_first and (time.time() - self.time_rec) < 0.045:
 
                 if len(self.last_image) == 64500:
                     im = self.last_image + bytearray(data)
 
-                elif len(data)==64500:
+                elif len(bytearray(data)) == 64500:
                     im = bytearray(data) + self.last_image
                 self.is_not_first = False
 
@@ -108,11 +117,17 @@ class UdpSocket(Thread):
                 self.is_not_first = True
                 im = bytearray()
 
-            if len(im) !=0:
-                image = Image.open(io.BytesIO(im))
-                image.show()
+            if len(im) != 0:
+
+                pil_frame = Image.open(io.BytesIO(im)).convert('RGB')
+
+                cv_frame = np.asarray(pil_frame).copy()
+                cv_frame = cv2.cvtColor(cv_frame, cv2.COLOR_RGB2BGR)
+                self.window.set_frame(cv_frame)
+                self.threading_event.set()
 
             self.time_rec = time.time()
+
 
         except:
             print("image data, receive error")
@@ -169,4 +184,3 @@ class UdpSocket(Thread):
         :return:
         """
         self.send_to(ep, "check")
-
