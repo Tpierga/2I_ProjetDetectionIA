@@ -70,9 +70,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\_Barking_Dog\Common Scripts\Turn_Move.cs" />
-    <Compile Include="Assets\Scripts\CharacterController.cs" />
     <Compile Include="Assets\Scripts\controllerCamera.cs" />
     <Compile Include="Assets\Scripts\controllerOmni.cs" />
+    <Compile Include="Assets\Scripts\PersoController.cs" />
     <Compile Include="Assets\Scripts\Server\ConnectionMessage.cs" />
     <Compile Include="Assets\Scripts\Server\Message.cs" />
     <Compile Include="Assets\Scripts\Server\UdpSocket.cs" />
@@ -88,17 +88,17 @@
     <Reference Include="Unity.CollabProxy.Editor">
       <HintPath>C:/Users/Ambre/ProjetUnity/2I_ProjetDetectionIA/Projet_Detection_IA/Library/ScriptAssemblies/Unity.CollabProxy.Editor.dll</HintPath>
     </Reference>
-    <Reference Include="Unity.TextMeshPro">
-      <HintPath>C:/Users/Ambre/ProjetUnity/2I_ProjetDetectionIA/Projet_Detection_IA/Library/ScriptAssemblies/Unity.TextMeshPro.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Analytics.DataPrivacy">
-      <HintPath>C:/Users/Ambre/ProjetUnity/2I_ProjetDetectionIA/Projet_Detection_IA/Library/ScriptAssemblies/Unity.Analytics.DataPrivacy.dll</HintPath>
-    </Reference>
     <Reference Include="Unity.Postprocessing.Editor">
       <HintPath>C:/Users/Ambre/ProjetUnity/2I_ProjetDetectionIA/Projet_Detection_IA/Library/ScriptAssemblies/Unity.Postprocessing.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Postprocessing.Runtime">
       <HintPath>C:/Users/Ambre/ProjetUnity/2I_ProjetDetectionIA/Projet_Detection_IA/Library/ScriptAssemblies/Unity.Postprocessing.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.TextMeshPro">
+      <HintPath>C:/Users/Ambre/ProjetUnity/2I_ProjetDetectionIA/Projet_Detection_IA/Library/ScriptAssemblies/Unity.TextMeshPro.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.Analytics.DataPrivacy">
+      <HintPath>C:/Users/Ambre/ProjetUnity/2I_ProjetDetectionIA/Projet_Detection_IA/Library/ScriptAssemblies/Unity.Analytics.DataPrivacy.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.AIModule">
       <HintPath>C:/Program Files/Unity/Editor/Data/Managed/UnityEngine/UnityEngine.AIModule.dll</HintPath>
