@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class CharacterController : MonoBehaviour
 {
+    private float horizontalInput;
+    public float speed = 40;
     private Animator Anim;
     private CharacterController Frank;
     private float timeToChangeDirection;
@@ -17,23 +19,47 @@ public class CharacterController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        timeToChangeDirection -= Time.deltaTime;
         
-        if (timeToChangeDirection <= 0)
-        {
-            ChangeDirection();
-        }
+        Diriger();
+        
 
     }
-    private void ChangeDirection()
+    private void Diriger()
     {
-        float angle = Random.Range(0f, 360f);
-        Quaternion quat = Quaternion.AngleAxis(angle, Vector3.up);
-        Vector3 newRotation = quat * Vector3.left;
-        transform.Rotate(newRotation);
-        timeToChangeDirection = Random.Range(1f, 4f);
-        Debug.Log(timeToChangeDirection);
-        Anim.SetBool("walk", true);
+        //float angle = Random.Range(0f, 360f);
+        //Quaternion quat = Quaternion.AngleAxis(angle, Vector3.up);
+        //Vector3 newRotation = quat * Vector3.left;
+        //transform.Rotate(newRotation);
+        //timeToChangeDirection = Random.Range(1f, 4f);
+        //Debug.Log(timeToChangeDirection);
         
+        if (Input.GetKeyDown("up"))
+        {
+            Anim.SetBool("walk", true);
+            Debug.Log("Kevin avance");
+        }
+        else if (Input.GetKeyUp("up"))
+        { 
+            Anim.SetBool("walk", false);
+            
+            Debug.Log("Kevin ne se meut plus");
+        }
+        else if (Input.GetKeyDown("down"))
+        {
+            Anim.SetBool("walk", false);
+            Anim.SetBool("backwards", true);
+
+
+        }
+        else if (Input.GetKeyUp("down"))
+        {
+            Anim.SetBool("walk", false);
+            Anim.SetBool("backwards", false);
+
+        }
+        horizontalInput = Input.GetAxis("Horizontal");
+        // Pour le faire tourner
+        transform.Rotate(Vector3.up, Time.deltaTime * speed * horizontalInput);
+
     }
 }
