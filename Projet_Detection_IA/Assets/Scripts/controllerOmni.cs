@@ -73,26 +73,26 @@ public class controllerOmni : MonoBehaviour
     
     void Forward()
     {
-        if (Input.GetKey(KeyCode.W))
+        if (Input.GetKey(KeyCode.F))
         {
             transform.Translate(Vector3.forward * ((Time.deltaTime) * 2));
-            if (Input.GetKey(KeyCode.Q))
+            if (Input.GetKey(KeyCode.C))
             {
                 transform.Rotate(-Vector3.up);
             }
-            else if (Input.GetKey(KeyCode.D))
+            else if (Input.GetKey(KeyCode.B))
             {
                 transform.Rotate(Vector3.up);
             }
         }
-        else if (Input.GetKey(KeyCode.S))
+        else if (Input.GetKey(KeyCode.V))
         {
             transform.Translate(-Vector3.forward * ((Time.deltaTime) * 2));
-            if (Input.GetKey(KeyCode.Q))
+            if (Input.GetKey(KeyCode.C))
             {
                 transform.Rotate(-Vector3.up);
             }
-            else if (Input.GetKey(KeyCode.D))
+            else if (Input.GetKey(KeyCode.B))
             {
                 transform.Rotate(Vector3.up);
             }
@@ -101,13 +101,13 @@ public class controllerOmni : MonoBehaviour
 
     void Rotate()
     {
-        if (Input.GetKey(KeyCode.Q))
+        if (Input.GetKey(KeyCode.C))
         {
             transform.Rotate(-Vector3.up*rotationSpeed*Time.deltaTime);
             //modifying the Vector3, based on input multiplied by speed and time
             
         }
-        else if (Input.GetKey(KeyCode.D))
+        else if (Input.GetKey(KeyCode.B))
         {
             transform.Rotate(Vector3.up*rotationSpeed*Time.deltaTime);
             //modifying the Vector3, based on input multiplied by speed and time
