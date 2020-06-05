@@ -467,6 +467,7 @@ namespace ConsoleApplication1
              * Message id = 201 answer to a connection request
              */
             var rcvString = Encoding.ASCII.GetString(so.Buffer, 0, nBytes);
+            Debug.Log(rcvString);
             if (!Message.IsMessage(rcvString))
             {
                 /*
