@@ -15,7 +15,7 @@ public class controllerCamera : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Rotate(); 
+        //Rotate(); 
     }
     
     void Rotate()

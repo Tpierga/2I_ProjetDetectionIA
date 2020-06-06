@@ -1,47 +1,90 @@
 import tkinter as tk
 import json
 from UdpSocket import UdpSocket
+from Window import Window
+import threading
+import numpy as np
+import time
+import cv2
 
-server = UdpSocket(1024)
+threading_event = threading.Event()
 
-server.start_socket("127.0.0.1", 27000)
-server_ep = ("127.0.0.1", 50000)
-#DICTIONNARY
+tracker = cv2.MultiTracker_create()
+door_to_heaven = Window(tracker)
+server = UdpSocket(door_to_heaven, threading_event)
+server.start_socket("127.0.0.1", 27000, "test")
+time.sleep(1)
+
+# DICTIONNARY
 
 dic_command = {
-    "move_forward" : "0",
-    "move_backwards" : "0",
-    "rotate_left" : "0",
-    "rotate_right" : "0"
+    "move_forward": "0",
+    "move_backwards": "0",
+    "rotate_left": "0",
+    "rotate_right": "0"
 }
 
+# WINDOW
+
+if __name__ == "__main__":
+    window = tk.Tk()
+
+    # FRAMES
+
+    title_frame = tk.Frame(window)
+    title_frame.pack(side="top", fill="x")
+    forward_frame = tk.Frame(window)
+    forward_frame.pack(fill="x")
+    side_frame = tk.Frame(window)
+    side_frame.pack(fill="x")
+    backwards_frame = tk.Frame(window)
+    backwards_frame.pack(side="bottom", fill="x")
+
+    # LABELS
+
+    forward_label = tk.Label(forward_frame, text="Move forward")
+    forward_label.pack()
+    left_label = tk.Label(side_frame, text="Rotate left")
+    left_label.pack(side="left")
+    right_label = tk.Label(side_frame, text="Rotate right")
+    right_label.pack(side="right")
+    backwards_label = tk.Label(backwards_frame, text="Move backwards")
+    backwards_label.pack()
+
+    # DETECTION
 
 
-#WINDOW
+    t_prev = time.time()
+    while threading_event.wait():
+        """
+        if time.time() - t_prev > 2.5:
+            t_prev = time.time()
+            print("Deteectiionnnnnnnnnnnnnnnnnn!!!!!!!!!!!!!!!!!!!!!!!!")
+            bodies = door_to_heaven.detect_body()
 
-window = tk.Tk()
+            if isinstance(bodies, np.ndarray) and bodies.size:
+                # test le rectangle le plus grand (plus grand -> plus proche)
+                for box in bodies:
+                    pass
+                # initialise le tracker sur l'objet selectionné
+                # condition pour savoir si l'objet en queston n'est pas déjà entrain d'être traqué
+                # dans ce cas ne réinitialiser un tracker que si le précédent tracker a raté
 
-# FRAMES
 
-title_frame = tk.Frame(window)
-title_frame.pack(side = "top", fill = "x")
-forward_frame = tk.Frame(window)
-forward_frame.pack(fill = "x")
-side_frame = tk.Frame(window)
-side_frame.pack(fill = "x")
-backwards_frame = tk.Frame(window)
-backwards_frame.pack(side = "bottom", fill = "x")
+        door_to_heaven.tracker_display()
+        """
 
-# LABELS
+        cv2.imshow('displaying', door_to_heaven.get_frame())
 
-forward_label = tk.Label(forward_frame, text = "Move forward")
-forward_label.pack()
-left_label = tk.Label(side_frame, text = "Rotate left")
-left_label.pack(side = "left")
-right_label = tk.Label(side_frame, text = "Rotate right")
-right_label.pack(side = "right")
-backwards_label = tk.Label(backwards_frame, text = "Move backwards")
-backwards_label.pack()
+        k = cv2.waitKey(1) & 0xFF
+        if k == 27:
+            break
+
+        # window.define_roi_init_tracker()
+        # initialize tracker
+        # add tracker to trackers
+
+    cv2.destroyAllWindows()
 
 # KEY BINDINGS
 
@@ -49,7 +92,7 @@ def keyup(e):
     if (e.char == 'z'):
         dic_command["move_forward"] = "0"
         forward_label.configure(foreground="red")
-    elif(e.char == 's'):
+    elif (e.char == 's'):
         dic_command["move_backwards"] = "0"
         backwards_label.configure(foreground="red")
     elif (e.char == 'q'):
@@ -61,15 +104,16 @@ def keyup(e):
 
     forward_label.update()
 
-    dic_send = {"id" : 7, "parity": 1, "len": 123, "message" : dic_command}
+    dic_send = {"id": 7, "parity": 1, "len": 123, "message": dic_command}
     clochette = json.dumps(dic_send)
     server.send_to(("127.0.0.1", 50000), clochette)
 
+
 def keydown(e):
-    if(e.char == 'z'):
+    if (e.char == 'z'):
         dic_command["move_forward"] = "1"
         forward_label.configure(foreground="green")
-    elif(e.char == 's'):
+    elif (e.char == 's'):
         dic_command["move_backwards"] = "1"
         backwards_label.configure(foreground="green")
     elif (e.char == 'q'):
@@ -80,14 +124,11 @@ def keydown(e):
         right_label.configure(foreground="green")
     window.update()
 
-    dic_send = {"id" : 7, "parity": 1, "len": 123, "message" : dic_command}
+    dic_send = {"id": 7, "parity": 1, "len": 123, "message": dic_command}
     clochette = json.dumps(dic_send)
     server.send_to(("127.0.0.1", 50000), clochette)
+
 
 window.bind("<KeyPress>", keydown)
 window.bind("<KeyRelease>", keyup)
 window.mainloop()
-
-
-
-

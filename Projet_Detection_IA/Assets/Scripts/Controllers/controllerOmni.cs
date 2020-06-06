@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
-using ConsoleApplication1;
+using Assets.Server_controller;
 using UnityEngine;
 
 public class controllerOmni : MonoBehaviour
@@ -67,7 +67,7 @@ public class controllerOmni : MonoBehaviour
         var bytes = snapCam.EncodeImage();
         if (bytes != null && bytes.Length > 0)
         {
-            server.SendImageTo("127.0.0.1", 28000, bytes);
+            server.SendImageTo("127.0.0.1", 27000, bytes);
         }
     }
     

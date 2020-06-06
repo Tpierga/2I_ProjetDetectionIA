@@ -8,6 +8,7 @@ using System.Threading;
 using Newtonsoft.Json;
 using UnityEngine;
 using Random = System.Random;
+using System.Linq;
 
 namespace Assets.Server_controller
 {
@@ -34,17 +35,15 @@ namespace Assets.Server_controller
 
         public static string PlayersInformation = "";
 
-
         private class State
         {
             public byte[] Buffer;
 
-            public State(int bufferSize = 8192)
+            public State(int bufferSize = 64500)
             {
                 Buffer = new byte[bufferSize];
             }
         }
-
 
         /// <summary>
         /// This method creat a UdpSocket object.
@@ -139,7 +138,66 @@ namespace Assets.Server_controller
             IsActive = false;
             _socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
         }
+        
 
+        public void SendImageTo(string targetIp, int targetPort, byte[] image)
+        {
+            var target = new IPEndPoint(IPAddress.Parse(targetIp), targetPort);
+            SendImageToProcess(target, image);
+        }
+
+        private void SendImageToProcess(IPEndPoint target, byte[] data)
+        {
+            if (!IsActive) return;
+            try
+            {
+                if (data.Length > 64488)
+                {
+                    byte[] imageBytes1 = data.Take(64488).ToArray();
+                    byte[] imageBytes2 = data.Skip(64488).Take(data.Length - 64488).ToArray();
+                    
+                    SendImageToProcess(target, imageBytes1);
+                    SendImageToProcess(target, imageBytes2);
+                }
+                else
+                {
+
+                    var sendState = new State(_bufSize);
+                    
+                    byte[] header = Encoding.ASCII.GetBytes("255255255255");
+                    
+                    // TODO try to remove a copy of data to save performance
+                    byte [] data_send = header.Concat(data).ToArray();
+                    Debug.Log("ok");
+                    _socket.BeginSendTo(data_send, 0, data_send.Length, SocketFlags.None, target, (ar) =>
+                    {
+                        var so = (State) ar.AsyncState;
+                        try
+                        {
+                            var bytes = _socket.EndSend(ar);
+                            if (_verbose)
+                            {
+                                Debug.Log("SEND: {0}" + bytes.ToString());
+                            }
+                        }
+                        catch
+                        {
+                            if (_verbose)
+                            {
+                                Debug.Log("Unable to send message to: {0}" + target.ToString());
+                            }
+                        }
+                    }, sendState);
+                }
+            }
+            catch
+            {
+                if (_verbose)
+                {
+                    Debug.Log("Destination unavailable");
+                }
+            }
+        }
 
         /// <summary>
         /// This method can send a message to a given machine. The ip of the machine can be specified
@@ -222,7 +280,7 @@ namespace Assets.Server_controller
                         var bytes = _socket.EndSend(ar);
                         if (_verbose)
                         {
-                            Console.WriteLine("SEND: {0}, {1}", bytes, text);
+                            Debug.Log("SEND: " +bytes.ToString() + ","+text.ToString());
                         }
 
                         // Debug.Log(DateTime.Now - tStart);
@@ -232,7 +290,7 @@ namespace Assets.Server_controller
                     {
                         if (_verbose)
                         {
-                            Console.WriteLine("Unable to send message to: {0}", target);
+                            Debug.Log("Unable to send message to: "+ target.ToString());
                         }
                     }
                 }, sendState);
@@ -241,7 +299,7 @@ namespace Assets.Server_controller
             {
                 if (_verbose)
                 {
-                    Console.WriteLine("Destination unavailable");
+                    Debug.Log("Destination unavailable");
                 }
             }
         }
@@ -265,7 +323,6 @@ namespace Assets.Server_controller
             IsConnected = true;
             Send(new Message(1, "{\"connection_status\" : 1 }").ToJson());
         }
-
 
         /// <summary>
         /// Send a message to the machine we are connected with.
@@ -293,7 +350,7 @@ namespace Assets.Server_controller
                 var bytes = _socket.EndSend(ar);
                 if (_verbose)
                 {
-                    Console.WriteLine("SEND: {0}, {1}", bytes, text);
+                    Debug.Log("SEND: " + bytes.ToString() + "," + text.ToString());
                 }
             }, _state);
         }
@@ -361,7 +418,7 @@ namespace Assets.Server_controller
                     {
                         if (_verbose)
                         {
-                            Console.WriteLine("Reception error");
+                            Debug.Log("Reception error");
                         }
                     }
 
@@ -379,7 +436,8 @@ namespace Assets.Server_controller
             {
                 if (_verbose)
                 {
-                    Console.WriteLine("Error");
+                    Debug.Log(
+                        "Error");
                 }
             }
         }
@@ -411,7 +469,6 @@ namespace Assets.Server_controller
                     port += c;
                 }
             }
-
 
             return new IPEndPoint(IPAddress.Parse(ipAdress), int.Parse(port));
         }
@@ -501,8 +558,8 @@ namespace Assets.Server_controller
                         default:
                             if (_verbose)
                             {
-                                Console.WriteLine("Unknown id");
-                                Console.WriteLine(rcvString);
+                                Debug.Log("Unknown id");
+                                Debug.Log(rcvString);
                             }
 
                             break;
@@ -549,7 +606,7 @@ namespace Assets.Server_controller
                             {
                                 if (_verbose)
                                 {
-                                    Console.WriteLine("Message format not correct for connection");
+                                    Debug.Log("Message format not correct for connection");
                                 }
                             }
 
@@ -585,7 +642,6 @@ namespace Assets.Server_controller
                             }
 
                             break;
-
                     }
                 }
             }

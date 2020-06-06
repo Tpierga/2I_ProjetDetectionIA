@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Assets.Server_controller;
 using UnityEngine;
-using ConsoleApplication1;
 
 public class testcontroller : MonoBehaviour
 {

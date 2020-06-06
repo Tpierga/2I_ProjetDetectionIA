@@ -5,11 +5,17 @@ import hashlib
 import datetime
 from Message import Message
 import queue
+import time
+import numpy as np
+import cv2
+from PIL import Image
+import io
+import threading
 
 
 class UdpSocket(Thread):
 
-    def __init__(self, buffer_size: Optional[int] = 1024) -> None:
+    def __init__(self, door_to_heaven, threading_event: threading.Event(),  buffer_size: Optional[int] = 64500) -> None:
         """
         Default constructor for UdpSocket object
         :param buffer_size: The size of the buffer used for communication
@@ -24,6 +30,11 @@ class UdpSocket(Thread):
         self.last_check_ep: Union[Tuple[str, int], None] = None
         self.last_check_time: datetime.datetime = datetime.datetime.now()
         self.queue = queue.SimpleQueue()
+        self.is_not_first: bool = False
+        self.time_rec: time = time.time()
+        self.last_image: bytearray = bytearray()
+        self.window = door_to_heaven
+        self.threading_event = threading_event
 
     def start_socket(self, ip_address_server: str, port_server: int, password: Optional[str] = "") -> None:
         """
@@ -67,7 +78,9 @@ class UdpSocket(Thread):
         while self.is_running:
             try:
                 data, address = self.socket.recvfrom(self.buffer_size)
+
                 self.handler(data, address)
+
             except OSError:
                 pass
             except:
@@ -80,22 +93,83 @@ class UdpSocket(Thread):
         :param address: The address and port of the remote machine that send the message
         :return: None
         """
-        rcv_string = data.decode("UTF_8")
-        print(f"rcv : {rcv_string} \nFrom : \nip address : {address[0]}\nport : {address[1]}" )
-        # print(Message.is_message(rcv_string), rcv_string)
-        if not Message.is_message(rcv_string):
-            # If the received message is not a message object
-            if rcv_string == "check":
-                self.send_to((address[0], address[1]), "ok")
-            if rcv_string == "ok":
-                self.last_check_time = datetime.datetime.now()
-                self.last_check_ep = (address[0], address[1])
+        print(f"From : \nip address : {address[0]}\nport : {address[1]}")
+        print(len(data))
+
+        data_recv = bytearray(data)
+
+        if data_recv[:12].decode("utf-8") == "255255255255":
+            data_image = data_recv[12:]
+
+            try:
+                # first condition used when the image is bigger than the max UDP size
+                # it is then sent within two different UDP packets and needs to be reassembled
+                if self.is_not_first and (time.time() - self.time_rec) < 0.005:
+
+                    # conditions for the case when the two parts of the image are not sent in order
+                    if len(self.last_image) == 64488:
+                        im = self.last_image + data_image
+
+                    elif len(data_image) == 64488:
+                        im = data_image + self.last_image
+                    self.is_not_first = False
+
+                # normal behavior, if image is smaller than UDP size
+                # the image sent to im is always one frame late to allow
+                # the previous behavior of big images sent in two packets
+                elif self.is_not_first:
+                    im = self.last_image
+                    self.last_image = data_image
+
+                # called only when the case with big image append.
+                # Because self.last_image was emptied on last frame,
+                # we now store current value in self.last_image to anticipate
+                # the case where this value is only a part of another image
+                # bigger than UDP max size
+                else:
+                    self.last_image = data_image
+                    self.is_not_first = True
+                    im = bytearray()
+
+                # the image is received as bytes and has to be converted
+                # on a readable format again. We then convert the RGB to BGR
+                # which is format used in opencv.
+                if len(im) != 0:
+
+                    pil_frame = Image.open(io.BytesIO(im)).convert('RGB')
+                    print("ok")
+                    cv_frame = np.asarray(pil_frame).copy()
+                    cv_frame = cv2.cvtColor(cv_frame, cv2.COLOR_RGB2BGR)
+
+                    self.window.set_frame(cv_frame)
+                    self.threading_event.set()
+
+                # used to identify the case where two packets are sent consecutively,
+                # which means it is the case of an image bigger than max UDP size
+                self.time_rec = time.time()
+
+            except:
+                print("image data, receive error")
+
         else:
-            if False:
-                pass
+
+            # TODO : try to decode from bytearray to skip one step
+            rcv_string = data.decode("UTF_8")
+
+            # print(Message.is_message(rcv_string), rcv_string)
+            if not Message.is_message(rcv_string):
+                # If the received message is not a message object
+                if rcv_string == "check":
+                    self.send_to((address[0], address[1]), "ok")
+                if rcv_string == "ok":
+                    self.last_check_time = datetime.datetime.now()
+                    self.last_check_ep = (address[0], address[1])
             else:
-                #  DEBUG
-                self.queue.put_nowait(Message.from_json(rcv_string))
+                if False:
+                    pass
+                else:
+                    #  DEBUG
+                    self.queue.put_nowait(Message.from_json(rcv_string))
 
         # print(f"From : \nip address : {address[0]}\nport : {address[1]}")
         # print("received message:", data)

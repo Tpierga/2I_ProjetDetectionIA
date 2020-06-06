@@ -28,7 +28,7 @@ public class Perso2Controller : MonoBehaviour
     {
         if (Claude.isGrounded)
         {
-            if (Input.GetKeyDown("[5]"))
+            if (Input.GetKeyDown(KeyCode.I))
             {
                 anim.SetBool("walk", true);
                 Debug.Log("Claude avance");
@@ -38,13 +38,13 @@ public class Perso2Controller : MonoBehaviour
 
 
             }
-            else if (Input.GetKeyUp("[5]"))
+            else if (Input.GetKeyUp(KeyCode.I))
             {
                 anim.SetBool("walk", false);
                 moveDirection = new Vector3(0, 0, 0);
                 Debug.Log("Kevin ne se meut plus");
             }
-            else if (Input.GetKeyDown("[2]"))
+            else if (Input.GetKeyDown(KeyCode.K))
             {
                 anim.SetBool("walk", false);
                 anim.SetBool("backwards", true);
@@ -53,30 +53,29 @@ public class Perso2Controller : MonoBehaviour
                 moveDirection = transform.TransformDirection(moveDirection);
 
             }
-            else if (Input.GetKeyUp("[2]"))
+            else if (Input.GetKeyUp(KeyCode.K))
             {
                 anim.SetBool("walk", false);
                 anim.SetBool("backwards", false);
                 moveDirection = new Vector3(0, 0, 0);
 
             }
-            else if (Input.GetKeyDown("[1]"))
+            else if (Input.GetKeyDown(KeyCode.J))
             {
                 rotVector = -Vector3.up;
             }
-            else if (Input.GetKeyUp("[1]"))
+            else if (Input.GetKeyUp(KeyCode.J))
             {
                 rotVector = new Vector3(0, 0, 0);
             }
-            else if (Input.GetKeyDown("[3]"))
+            else if (Input.GetKeyDown(KeyCode.L))
             {
                 rotVector = Vector3.up;
             }
-            else if (Input.GetKeyUp("[3]"))
+            else if (Input.GetKeyUp(KeyCode.L))
             {
                 rotVector = new Vector3(0, 0, 0);
             }
-
         }
         moveDirection.y -= gravity * Time.deltaTime;
         transform.Rotate(rotVector * Time.deltaTime * speed * 10);
