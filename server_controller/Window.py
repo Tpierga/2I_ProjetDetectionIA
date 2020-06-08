@@ -17,7 +17,7 @@ class Window(Thread):
         self.tracker_roi = (0, 0, 0, 0)
         self.tracking_success = False
 
-    def detect_body(self):
+    def detect_body_haar(self):
         """
         Summary line.
         implement fullbody detection with an haarcascade detector
@@ -50,7 +50,7 @@ class Window(Thread):
         """
 
         roi = tuple(map(int, roi))
-        tracker = cv2.TrackerMedianFlow_create
+        tracker = cv2.TrackerMedianFlow_create()
         self.trackers.add(tracker, self.img, roi)
 
     def tracker_display(self):
@@ -65,14 +65,15 @@ class Window(Thread):
         draw a box on self.img to keep track of the moving object. the value of self.roi is also modified and stored
         """
         (success, boxes) = self.trackers.update(self.img)
-
+        (x, y, w, h) = (0,0,0,0)
         for box in boxes:
             (x, y, w, h) = tuple(map(int, box))
+
 
         if success:
             p1 = (x,y)
             p2 = (x+w, y+h)
-            cv2.rectangle((self.img, p1, p2, (0,255, 0), 3))
+            cv2.rectangle(self.img, p1, p2, (0,255, 0), 3)
             self.tracking_success = True
 
         else:
