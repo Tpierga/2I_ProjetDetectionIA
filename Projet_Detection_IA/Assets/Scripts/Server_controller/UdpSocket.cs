@@ -141,7 +141,7 @@ namespace ConsoleApplication1
             _socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
         }
 
-        public void SendImageTo(string targetIp, int targetPort, byte[] image)
+public void SendImageTo(string targetIp, int targetPort, byte[] image)
         {
             var target = new IPEndPoint(IPAddress.Parse(targetIp), targetPort);
             SendImageToProcess(target, image);
@@ -152,20 +152,27 @@ namespace ConsoleApplication1
             if (!IsActive) return;
             try
             {
-                if (data.Length > 64500)
+                if (data.Length > 64488)
                 {
-                    byte[] imageBytes1 = data.Take(64500).ToArray();
-                    byte[] imageBytes2 = data.Skip(64500).Take(data.Length - 64500).ToArray();
-
+                    byte[] imageBytes1 = data.Take(64488).ToArray();
+                    byte[] imageBytes2 = data.Skip(64488).Take(data.Length - 64488).ToArray();
+                    
                     SendImageToProcess(target, imageBytes1);
                     SendImageToProcess(target, imageBytes2);
                 }
                 else
                 {
+
                     var sendState = new State(_bufSize);
-                    _socket.BeginSendTo(data, 0, data.Length, SocketFlags.None, target, (ar) =>
+                    
+                    byte[] header = Encoding.ASCII.GetBytes("255255255255");
+                    
+                    // TODO try to remove a copy of data to save performance
+                    byte [] data_send = header.Concat(data).ToArray();
+                    Debug.Log("ok");
+                    _socket.BeginSendTo(data_send, 0, data_send.Length, SocketFlags.None, target, (ar) =>
                     {
-                        var so = (State)ar.AsyncState;
+                        var so = (State) ar.AsyncState;
                         try
                         {
                             var bytes = _socket.EndSend(ar);
@@ -183,7 +190,6 @@ namespace ConsoleApplication1
                         }
                     }, sendState);
                 }
-
             }
             catch
             {

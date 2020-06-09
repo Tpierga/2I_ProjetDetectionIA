@@ -52,40 +52,42 @@ if __name__ == "__main__":
     backwards_label.pack()
 
     # DETECTION
-
-
+"""
     t_prev = time.time()
     while threading_event.wait():
-        """
-        if time.time() - t_prev > 2.5:
-            t_prev = time.time()
-            print("Deteectiionnnnnnnnnnnnnnnnnn!!!!!!!!!!!!!!!!!!!!!!!!")
-            bodies = door_to_heaven.detect_body()
+        # initialise le tracker sur l'objet selectionné
+        # condition pour savoir si l'objet en queston n'est pas déjà entrain d'être traqué
+        # dans ce cas ne réinitialiser un tracker que si le précédent tracker a raté
 
-            if isinstance(bodies, np.ndarray) and bodies.size:
-                # test le rectangle le plus grand (plus grand -> plus proche)
-                for box in bodies:
-                    pass
-                # initialise le tracker sur l'objet selectionné
-                # condition pour savoir si l'objet en queston n'est pas déjà entrain d'être traqué
-                # dans ce cas ne réinitialiser un tracker que si le précédent tracker a raté
-
-
-        door_to_heaven.tracker_display()
-        """
+        #TODO réparer le tracker pour prendre en compte le tracker vide
+        #door_to_heaven.tracker_display()
 
         cv2.imshow('displaying', door_to_heaven.get_frame())
 
         k = cv2.waitKey(1) & 0xFF
-        if k == 27:
+
+        if k == ord("s"):
+            # select the bounding box of the object we want to track
+            print("deteectiionnnnnnn!!!!!!!!!!!!!!!!!!")
+            bodies = door_to_heaven.detect_body_yolo()
+
+            # test si la detection a retourné quelque chose
+            if isinstance(bodies, np.ndarray) and bodies.size:
+                f = str(time.time()) + '.jpg'
+                cv2.imwrite('images/res/' + f, door_to_heaven.get_frame())
+                for box in bodies:
+                    door_to_heaven.init_tracker(box)
+
+        elif k == 27:
+            break
+        elif k == ord("q"):
             break
 
         # window.define_roi_init_tracker()
         # initialize tracker
         # add tracker to trackers
-
     cv2.destroyAllWindows()
-
+"""
 # KEY BINDINGS
 
 def keyup(e):

@@ -99,6 +99,7 @@ class UdpSocket(Thread):
         data_recv = bytearray(data)
 
         if data_recv[:12].decode("utf-8") == "255255255255":
+            print("is image\n")
             data_image = data_recv[12:]
 
             try:
@@ -135,9 +136,7 @@ class UdpSocket(Thread):
                 # on a readable format again. We then convert the RGB to BGR
                 # which is format used in opencv.
                 if len(im) != 0:
-
                     pil_frame = Image.open(io.BytesIO(im)).convert('RGB')
-                    print("ok")
                     cv_frame = np.asarray(pil_frame).copy()
                     cv_frame = cv2.cvtColor(cv_frame, cv2.COLOR_RGB2BGR)
 
