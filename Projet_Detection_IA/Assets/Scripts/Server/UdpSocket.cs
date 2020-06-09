@@ -8,8 +8,9 @@ using System.Text;
 using System.Threading;
 using System.Security.Cryptography;
 using UnityEngine;
+using Newtonsoft.Json;
 using Random = System.Random;
-
+using System.IO;
 
 namespace ConsoleApplication1
 {
@@ -33,7 +34,9 @@ namespace ConsoleApplication1
         private bool _rcvPong;
         private bool _sendPing;
         private int _tPong;
-        
+        Movement movementRobot;
+
+
         private class State
         {
             public byte[] Buffer;
@@ -467,7 +470,7 @@ namespace ConsoleApplication1
              * Message id = 201 answer to a connection request
              */
             var rcvString = Encoding.ASCII.GetString(so.Buffer, 0, nBytes);
-            Debug.Log(rcvString);
+
             if (!Message.IsMessage(rcvString))
             {
                 /*
@@ -589,11 +592,23 @@ namespace ConsoleApplication1
                             }
 
                             break;
+                        case 102:
+                            movementRobot = JsonUtility.FromJson<Movement>(rcvMessage.message);
+                            using (StreamWriter file = File.CreateText(@"D:\ESME\PROJET\UNITY\2I_ProjetDetectionIA\Projet_Detection_IA\Assets\Scripts\jsonFiles\movement.json"))
+                            {
+                                JsonSerializer serializer = new JsonSerializer();
+                                //serialize object directly into file stream
+                                serializer.Serialize(file, movementRobot);
+                            }
+
+                            Debug.Log(rcvMessage.message);
+                            break;
+
                         default:
                             if (_verbose)
                             {
-                                Console.WriteLine("Unknown id");
-                                Console.WriteLine(rcvString);
+                                Debug.Log("Unknown id");
+                                Debug.Log(rcvMessage.message);
                             }
 
                             break;
@@ -718,5 +733,6 @@ namespace ConsoleApplication1
         {
             return _lastCheckTime;
         }
+
     }
 }

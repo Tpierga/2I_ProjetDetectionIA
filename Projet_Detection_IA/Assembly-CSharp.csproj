@@ -11,8 +11,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <RootNamespace>
-    </RootNamespace>
+    <RootNamespace></RootNamespace>
     <ProjectGuid>{3FD3A93C-5154-219F-E8DB-1788D9E7DDC4}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -71,11 +70,8 @@
     <Compile Include="Assets\Scripts\Server\ConnectionMessage.cs" />
     <Compile Include="Assets\Scripts\Server\Message.cs" />
     <Compile Include="Assets\Scripts\Server\UdpSocket.cs" />
-    <Compile Include="Assets\Scripts\Server_controller\ConnectionMessage.cs" />
-    <Compile Include="Assets\Scripts\Server_controller\Message.cs" />
-    <Compile Include="Assets\Scripts\Server_controller\UdpSocket.cs" />
     <Compile Include="Assets\Scripts\SnapShotCamera.cs" />
-    <Compile Include="Assets\testcontroller.cs" />
+    <Compile Include="Assets\Scripts\testcontroller.cs" />
     <None Include="Assets\_Barking_Dog\Readme_Please.txt" />
     <None Include="Assets\JsonDotNet\link.xml" />
     <Reference Include="Unity.TextMeshPro.Editor">

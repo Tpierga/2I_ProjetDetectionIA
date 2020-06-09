@@ -84,29 +84,22 @@ class Message:
         """
         return json.dumps(dict(self))
 
+    def to_json(self) -> str:
+        """
+        Convert the message to a Json object
+        :return:
+        str : the Json object
+        """
+        return str(self)
+
     @staticmethod
-    def creat_connection_message(password: str, verbose: Optional[int] = 1, hash_pass: Optional[bool] = False) -> str:
+    def connection_message(password: str, verbose: Optional[int] = 1, hash_pass: Optional[bool] = False) -> str:
         if hash_pass:
             hash_password = hashlib.sha1(bytes(password, "utf8")).hexdigest()
         else:
             hash_password = password
 
         return '{"password": "' + str(hash_password) + '" , "verbose": ' + str(verbose) + '}'
-
-    @staticmethod
-    def spe_creat_connection_message(password: str, port: Optional[int] = 50000,
-                                     hash_pass: Optional[bool] = False) -> str:
-        """
-        Create an old version of connection message to connect to Clovis Mini
-        :return:
-        A message that will be understood in the old software of Clovis Mini
-        """
-        if hash_pass:
-            hash_password = hashlib.sha1(bytes(password, "utf8")).hexdigest()
-        else:
-            hash_password = password
-
-        return '{"port" : ' + str(port) + ', "pass" : "' + str(hash_password) + '"}'
 
     @staticmethod
     def is_message(data_string: str):
@@ -116,3 +109,24 @@ class Message:
         True if it is a Message object else False
         """
         return not Message.from_json(data_string) is None
+
+    @staticmethod
+    def command_json(move_up: bool = False, move_down: bool = False,rotate_left: bool = False, rotate_right: bool = False) -> str:
+        """
+        Create the json string used to command a player
+        :param player_no: The id of the player to command
+        :param move_up: True if the player must go up
+        :param move_down: True if the player must go down
+        :param move_left: True if the player must go left
+        :param move_right: True if the player must go right
+        :param rotate_left: True if the player must rotate left
+        :param rotate_right: True if the player must rotate right
+        :return: A well formatted json string to send in a message object with information to command a player
+        """
+
+        return json.dumps({"moveUp": "1" if move_up else "0","moveDown": "1" if move_down else "0",
+                           "rotateLeft": "1" if rotate_left else "0","rotateRight": "1" if rotate_right else "0"})
+
+    @staticmethod
+    def command_message(move_up: bool = False, move_down: bool = False,rotate_left: bool = False, rotate_right: bool = False) -> str:
+        return Message(7, Message.command_json(move_up, move_down,rotate_left, rotate_right)).to_json()

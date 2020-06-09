@@ -1,18 +1,17 @@
 import tkinter as tk
-import json
 from UdpSocket import UdpSocket
-
+from Message import Message
 server = UdpSocket(1024)
 
-server.start_socket("127.0.0.1", 27000)
+server.start_socket("127.0.0.1", 5000)
 server_ep = ("127.0.0.1", 50000)
 #DICTIONNARY
 
 dic_command = {
-    "move_forward" : "0",
-    "move_backwards" : "0",
-    "rotate_left" : "0",
-    "rotate_right" : "0"
+    "move_forward" : False,
+    "move_backwards" : False,
+    "rotate_left" : False,
+    "rotate_right" : False
 }
 
 
@@ -47,42 +46,41 @@ backwards_label.pack()
 
 def keyup(e):
     if (e.char == 'z'):
-        dic_command["move_forward"] = "0"
+        dic_command["move_forward"] = False
         forward_label.configure(foreground="red")
     elif(e.char == 's'):
-        dic_command["move_backwards"] = "0"
+        dic_command["move_backwards"] = False
         backwards_label.configure(foreground="red")
     elif (e.char == 'q'):
-        dic_command["rotate_left"] = "0"
+        dic_command["rotate_left"] = False
         left_label.configure(foreground="red")
     elif (e.char == 'd'):
-        dic_command["rotate_right"] = "0"
+        dic_command["rotate_right"] = False
         right_label.configure(foreground="red")
 
     forward_label.update()
 
-    dic_send = {"id" : 7, "parity": 1, "len": 123, "message" : dic_command}
-    clochette = json.dumps(dic_send)
-    server.send_to(("127.0.0.1", 50000), clochette)
+    server.send_to(server_ep, Message.command_message(dic_command["move_forward"],dic_command["move_backwards"],
+                                                      dic_command["rotate_left"],dic_command["rotate_right"] ))
 
 def keydown(e):
     if(e.char == 'z'):
-        dic_command["move_forward"] = "1"
+        dic_command["move_forward"] = True
         forward_label.configure(foreground="green")
     elif(e.char == 's'):
-        dic_command["move_backwards"] = "1"
+        dic_command["move_backwards"] = True
         backwards_label.configure(foreground="green")
     elif (e.char == 'q'):
-        dic_command["rotate_left"] = "1"
+        dic_command["rotate_left"] = True
         left_label.configure(foreground="green")
     elif (e.char == 'd'):
-        dic_command["rotate_right"] = "1"
+        dic_command["rotate_right"] = True
         right_label.configure(foreground="green")
     window.update()
 
-    dic_send = {"id" : 7, "parity": 1, "len": 123, "message" : dic_command}
-    clochette = json.dumps(dic_send)
-    server.send_to(("127.0.0.1", 50000), clochette)
+    server.send_to(server_ep, Message.command_message(dic_command["move_forward"], dic_command["move_backwards"],
+                                                      dic_command["rotate_left"], dic_command["rotate_right"]))
+
 
 window.bind("<KeyPress>", keydown)
 window.bind("<KeyRelease>", keyup)
