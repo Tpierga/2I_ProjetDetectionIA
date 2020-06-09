@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 using Assets.Server_controller;
+using ConsoleApplication1;
 using UnityEngine;
 
 public class controllerOmni : MonoBehaviour

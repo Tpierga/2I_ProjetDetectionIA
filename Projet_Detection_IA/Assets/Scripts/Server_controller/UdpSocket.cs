@@ -1,16 +1,19 @@
+
 using System;
-using System.Collections.Generic;
+using System.CodeDom.Compiler;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
-using Newtonsoft.Json;
+using System.Security.Cryptography;
 using UnityEngine;
+using Newtonsoft.Json;
 using Random = System.Random;
-using System.Linq;
+using System.IO;
+using Assets.Server_controller;
 
-namespace Assets.Server_controller
+namespace ConsoleApplication1
 {
     public class UdpSocket
     {
@@ -27,13 +30,13 @@ namespace Assets.Server_controller
         private string _hashPass;
 
         private IPEndPoint _lastCheckEndPoint;
-        private int _lastCheckTime;
+        private long _lastCheckTime;
 
         private bool _rcvPong;
         private bool _sendPing;
         private int _tPong;
+        Movement movementRobot;
 
-        public static string PlayersInformation = "";
 
         private class State
         {
@@ -81,7 +84,7 @@ namespace Assets.Server_controller
         ///<param name="password">The password used for connection, default "" </param>
         ///<param name="bufferSize">The size of the buffer used to send and receive message</param>
         ///<param name="verbose">Set verbose to false if you don't want to see server's message in the console</param>
-        public void Start(string ipAddressServer, int portServer, string password = "", int bufferSize = 16384,
+        public void Start(string ipAddressServer, int portServer, string password = "", int bufferSize = 8192,
             bool verbose = true)
         {
             _verbose = verbose;
@@ -103,7 +106,6 @@ namespace Assets.Server_controller
                 return;
             }
 
-
             _tPong = DateTime.Now.Millisecond;
             _rcvPong = false;
             _sendPing = false;
@@ -116,7 +118,7 @@ namespace Assets.Server_controller
             Thread.Sleep(1);
             if (_verbose)
             {
-                Console.WriteLine("Server started on ip {0} and port {1}.", ipAddressServer, portServer);
+                Debug.Log("Server started on ip " + ipAddressServer.ToString() + " and port " + portServer.ToString());
             }
         }
 
@@ -138,7 +140,6 @@ namespace Assets.Server_controller
             IsActive = false;
             _socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
         }
-        
 
         public void SendImageTo(string targetIp, int targetPort, byte[] image)
         {
@@ -151,27 +152,20 @@ namespace Assets.Server_controller
             if (!IsActive) return;
             try
             {
-                if (data.Length > 64488)
+                if (data.Length > 64500)
                 {
-                    byte[] imageBytes1 = data.Take(64488).ToArray();
-                    byte[] imageBytes2 = data.Skip(64488).Take(data.Length - 64488).ToArray();
-                    
+                    byte[] imageBytes1 = data.Take(64500).ToArray();
+                    byte[] imageBytes2 = data.Skip(64500).Take(data.Length - 64500).ToArray();
+
                     SendImageToProcess(target, imageBytes1);
                     SendImageToProcess(target, imageBytes2);
                 }
                 else
                 {
-
                     var sendState = new State(_bufSize);
-                    
-                    byte[] header = Encoding.ASCII.GetBytes("255255255255");
-                    
-                    // TODO try to remove a copy of data to save performance
-                    byte [] data_send = header.Concat(data).ToArray();
-                    Debug.Log("ok");
-                    _socket.BeginSendTo(data_send, 0, data_send.Length, SocketFlags.None, target, (ar) =>
+                    _socket.BeginSendTo(data, 0, data.Length, SocketFlags.None, target, (ar) =>
                     {
-                        var so = (State) ar.AsyncState;
+                        var so = (State)ar.AsyncState;
                         try
                         {
                             var bytes = _socket.EndSend(ar);
@@ -189,6 +183,7 @@ namespace Assets.Server_controller
                         }
                     }, sendState);
                 }
+
             }
             catch
             {
@@ -198,7 +193,6 @@ namespace Assets.Server_controller
                 }
             }
         }
-
         /// <summary>
         /// This method can send a message to a given machine. The ip of the machine can be specified
         /// in the (<paramref name="targetIp"/>) parameter and the port in the (<paramref name="targetPort"/>)
@@ -259,13 +253,6 @@ namespace Assets.Server_controller
         ///<param name="text">The message to send as a string </param>
         private void SendToProcess(IPEndPoint target, string text)
         {
-            var sendThread = new Thread(none => SendToProcessAsync(target, text));
-            sendThread.Start();
-        }
-
-        private void SendToProcessAsync(IPEndPoint target, string text)
-        {
-            // Debug.Log((text));
             if (!IsActive) return;
             try
             {
@@ -273,24 +260,20 @@ namespace Assets.Server_controller
                 var sendState = new State(_bufSize);
                 _socket.BeginSendTo(data, 0, data.Length, SocketFlags.None, target, (ar) =>
                 {
-                    var so = (State) ar.AsyncState;
+                    var so = (State)ar.AsyncState;
                     try
                     {
-                        // var tStart = DateTime.Now;
                         var bytes = _socket.EndSend(ar);
                         if (_verbose)
                         {
-                            Debug.Log("SEND: " +bytes.ToString() + ","+text.ToString());
+                            Console.WriteLine("SEND: {0}, {1}", bytes, text);
                         }
-
-                        // Debug.Log(DateTime.Now - tStart);
-                        // Debug.Log((text));
                     }
                     catch
                     {
                         if (_verbose)
                         {
-                            Debug.Log("Unable to send message to: "+ target.ToString());
+                            Console.WriteLine("Unable to send message to: {0}", target);
                         }
                     }
                 }, sendState);
@@ -299,7 +282,7 @@ namespace Assets.Server_controller
             {
                 if (_verbose)
                 {
-                    Debug.Log("Destination unavailable");
+                    Console.WriteLine("Destination unavailable");
                 }
             }
         }
@@ -346,11 +329,11 @@ namespace Assets.Server_controller
             var data = Encoding.ASCII.GetBytes(text);
             _socket.BeginSend(data, 0, data.Length, SocketFlags.None, (ar) =>
             {
-                var so = (State) ar.AsyncState;
+                var so = (State)ar.AsyncState;
                 var bytes = _socket.EndSend(ar);
                 if (_verbose)
                 {
-                    Debug.Log("SEND: " + bytes.ToString() + "," + text.ToString());
+                    Console.WriteLine("SEND: {0}, {1}", bytes, text);
                 }
             }, _state);
         }
@@ -408,7 +391,7 @@ namespace Assets.Server_controller
             {
                 _socket.BeginReceiveFrom(_state.Buffer, 0, _bufSize, SocketFlags.None, ref _epFrom, _recv = (ar) =>
                 {
-                    var so = (State) ar.AsyncState;
+                    var so = (State)ar.AsyncState;
                     try
                     {
                         var bytes = _socket.EndReceiveFrom(ar, ref _epFrom);
@@ -418,7 +401,7 @@ namespace Assets.Server_controller
                     {
                         if (_verbose)
                         {
-                            Debug.Log("Reception error");
+                            Console.WriteLine("Reception error");
                         }
                     }
 
@@ -436,8 +419,7 @@ namespace Assets.Server_controller
             {
                 if (_verbose)
                 {
-                    Debug.Log(
-                        "Error");
+                    Console.WriteLine("Error");
                 }
             }
         }
@@ -449,6 +431,7 @@ namespace Assets.Server_controller
         ///<returns>The IPEndPoint converted from the EndPoint</returns>
         public static IPEndPoint EndPointToIpEndPoint(EndPoint ep)
         {
+            if (ep == null) return null;
             var strEp = ep.ToString();
             var ipAdress = "";
             var port = "";
@@ -485,13 +468,10 @@ namespace Assets.Server_controller
              *
              * 
              * Message id = 101 incoming request for connection
-             * Message id = 102 incoming request for new player command
-             * Message id = 301 incoming to know players status
              * Message id = 201 answer to a connection request
-             * Message id = 202 answer to a players status request
              */
             var rcvString = Encoding.ASCII.GetString(so.Buffer, 0, nBytes);
-           
+
             if (!Message.IsMessage(rcvString))
             {
                 /*
@@ -501,6 +481,7 @@ namespace Assets.Server_controller
                 {
                     case "ping":
                         SendTo(EndPointToIpEndPoint(_epFrom), "pong");
+                        Debug.Log("pong sent");
                         break;
                     case "pong":
                         if (_sendPing)
@@ -515,14 +496,13 @@ namespace Assets.Server_controller
                         break;
                     case "ok":
                         _lastCheckEndPoint = EndPointToIpEndPoint(_epFrom);
-                        _lastCheckTime = DateTime.Now.Millisecond;
+                        _lastCheckTime = DateTime.Now.Ticks;
                         break;
                     default:
                         if (_verbose)
                         {
                             Console.WriteLine("RECV: {0}: {1}, {2}", _epFrom.ToString(), nBytes, rcvString);
                         }
-
                         break;
                 }
             }
@@ -555,11 +535,13 @@ namespace Assets.Server_controller
                             SendTo(_remoteUser,
                                 new Message(201, "{" + '"' + "connection_status" + '"' + ": 1}").ToJson());
                             break;
+
+
                         default:
                             if (_verbose)
                             {
-                                Debug.Log("Unknown id");
-                                Debug.Log(rcvString);
+                                Console.WriteLine("Unknown id");
+                                Console.WriteLine(rcvString);
                             }
 
                             break;
@@ -606,39 +588,20 @@ namespace Assets.Server_controller
                             {
                                 if (_verbose)
                                 {
-                                    Debug.Log("Message format not correct for connection");
+                                    Console.WriteLine("Message format not correct for connection");
                                 }
                             }
 
                             break;
                         case 102:
+                            Debug.Log(rcvMessage.message);
+                            break;
 
-                            break;
-                        case 7:
-                            Debug.Log(rcvString);
-                            break;
-                        case 301:
-                            try
-                            {
-                                // SendTo(EndPointToIpEndPoint(_epFrom),
-                                //     new Message(202, PlayerInformation).ToJson());
-                                lock (PlayersInformation)
-                                {
-                                    SendTo(EndPointToIpEndPoint(_epFrom),
-                                        PlayersInformation);
-                                }
-                            }
-                            catch (Exception)
-                            {
-                                Debug.Log("Error 301");
-                            }
-
-                            break;
                         default:
                             if (_verbose)
                             {
                                 Debug.Log("Unknown id");
-                                Debug.Log(rcvString);
+                                Debug.Log(rcvMessage.message);
                             }
 
                             break;
@@ -759,20 +722,10 @@ namespace Assets.Server_controller
         /// <summary>This method returns the time of the last check if an answer was received
         /// </summary>
         ///<returns>The time of the last check</returns>
-        public int GetLastCheckTime()
+        public long GetLastCheckTime()
         {
             return _lastCheckTime;
         }
 
-        /// <summary>Set the value of PlayersInformation to (<paramref name="newInfo"/>)
-        ///<param name="newInfo">The json string to send when players information is required</param>
-        /// </summary>
-        public static void SetPlayerInformation(string newInfo)
-        {
-            lock (PlayersInformation)
-            {
-                PlayersInformation = newInfo;
-            }
-        }
     }
 }
