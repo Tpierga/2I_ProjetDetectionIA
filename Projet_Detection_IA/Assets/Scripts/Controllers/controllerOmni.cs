@@ -5,6 +5,7 @@ using System.Threading;
 using Assets.Server_controller;
 using ConsoleApplication1;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class controllerOmni : MonoBehaviour
 {
@@ -18,7 +19,9 @@ public class controllerOmni : MonoBehaviour
     Movement robotMovement = JsonUtility.FromJson<Movement>(jsonMovement);
 
     // Variables for server
-
+    public Text IP_input;
+    public Text port_input;
+    public Text password_input;
     public string sIP = "127.0.0.1";
     public int sPort = 50000;
 
@@ -43,7 +46,6 @@ public class controllerOmni : MonoBehaviour
     {
         server.Start(sIP, sPort, "test", verbose: true);
         Debug.Log("server started");
-
     }
 
     // Update is called once per frame
