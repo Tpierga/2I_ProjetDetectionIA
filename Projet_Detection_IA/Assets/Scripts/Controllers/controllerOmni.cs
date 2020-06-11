@@ -14,11 +14,17 @@ public class controllerOmni : MonoBehaviour
     float x;
     float y;
     float z;
+    public static string jsonMovement = "{\"move_forward\": \"0\", \"move_backwards\": \"0\", \"rotate_left\": \"0\", \"rotate_right\": \"0\"}";
+    Movement robotMovement = JsonUtility.FromJson<Movement>(jsonMovement);
+
+    // Variables for server
 
     public string sIP = "127.0.0.1";
     public int sPort = 50000;
 
     private UdpSocket server = new UdpSocket();
+
+    // Variables for detection
     private int _t = 0;
     private bool cameraRunning = false;
 
@@ -37,12 +43,13 @@ public class controllerOmni : MonoBehaviour
     {
         server.Start(sIP, sPort, "test", verbose: true);
         Debug.Log("server started");
-        
+
     }
-    
+
     // Update is called once per frame
     void Update()
     {
+
         if (Input.GetKeyDown(KeyCode.Space) && !cameraRunning)
         {
             cameraRunning = true;
@@ -57,12 +64,14 @@ public class controllerOmni : MonoBehaviour
         {
             snapCam.TakeSnapShot();
         }
-        Forward();
-        Rotate();
+        //Movement of the robot using python controller
+        Movement robotMovement = JsonUtility.FromJson<Movement>(jsonMovement);
+        Forward(robotMovement.move_forward, robotMovement.move_backwards);
+        Rotate(robotMovement.rotate_left, robotMovement.rotate_right);
         //Sensors();
-        
+
     }
-    
+
     private void LateUpdate()
     {
         var bytes = snapCam.EncodeImage();
@@ -71,62 +80,47 @@ public class controllerOmni : MonoBehaviour
             server.SendImageTo("127.0.0.1", 27000, bytes);
         }
     }
-    
-    void Forward()
+
+    void Forward(int forward, int backwards)
     {
-        if (Input.GetKey(KeyCode.F))
+        if (forward == 1)
         {
             transform.Translate(Vector3.forward * ((Time.deltaTime) * 2));
-            if (Input.GetKey(KeyCode.C))
-            {
-                transform.Rotate(-Vector3.up);
-            }
-            else if (Input.GetKey(KeyCode.B))
-            {
-                transform.Rotate(Vector3.up);
-            }
+
         }
-        else if (Input.GetKey(KeyCode.V))
+        else if (backwards == 1)
         {
             transform.Translate(-Vector3.forward * ((Time.deltaTime) * 2));
-            if (Input.GetKey(KeyCode.C))
-            {
-                transform.Rotate(-Vector3.up);
-            }
-            else if (Input.GetKey(KeyCode.B))
-            {
-                transform.Rotate(Vector3.up);
-            }
-        } 
+
+        }
     }
 
-    void Rotate()
+    void Rotate(int left, int right)
     {
-        if (Input.GetKey(KeyCode.C))
+        if (left == 1)
         {
-            transform.Rotate(-Vector3.up*rotationSpeed*Time.deltaTime);
+            transform.Rotate(-Vector3.up * rotationSpeed * Time.deltaTime);
             //modifying the Vector3, based on input multiplied by speed and time
-            
+
         }
-        else if (Input.GetKey(KeyCode.B))
+        else if (right == 1)
         {
-            transform.Rotate(Vector3.up*rotationSpeed*Time.deltaTime);
-            //modifying the Vector3, based on input multiplied by speed and time
-          
+            transform.Rotate(Vector3.up * rotationSpeed * Time.deltaTime);
+            //modifying the Vector3, based on input multiplied by speed and time  
         }
     }
-    
+
     void Sensors()
     {
         RaycastHit hit1;
         RaycastHit hit2;
         RaycastHit hit3;
         RaycastHit hit4;
-        
+
         //Vector3 offset2 = new Vector3(1.4f, 0, 0);
         //Vector3 offset4 = new Vector3(0, 0, 0);
         //Vector3 offset3 = new Vector3(1.4f, 0, 0);
-        
+
         // Directions des raycast : bleu et rouge > direction 1
         // Vert : direction 3 - Jaune : direction 4
         var direction1 = transform.TransformDirection(Vector3.forward) * rayDistance;
@@ -147,7 +141,7 @@ public class controllerOmni : MonoBehaviour
         //rayon rouge
         bool touche1 = Physics.Raycast(origine1, direction1, out hit1, rayDistance, layers);
         //rayon bleu
-        bool touche2=Physics.Raycast(origine2, direction1, out hit2, rayDistance, layers);
+        bool touche2 = Physics.Raycast(origine2, direction1, out hit2, rayDistance, layers);
         //rayon vert
         bool touche3 = Physics.Raycast(origine3, direction3, out hit3, rayDistance, layers);
         //rayon jaune
@@ -163,14 +157,14 @@ public class controllerOmni : MonoBehaviour
         {
 
             Debug.Log("aie bleu");
-           // transform.Rotate(-Vector3.up);
+            // transform.Rotate(-Vector3.up);
 
         }
         if (touche3)
         {
 
-           Debug.Log("aie vert");
-        //    transform.Rotate(-Vector3.up);
+            Debug.Log("aie vert");
+            //    transform.Rotate(-Vector3.up);
 
         }
         if (touche4)
@@ -182,4 +176,12 @@ public class controllerOmni : MonoBehaviour
         }
     }
 
+}
+
+public class Movement
+{
+    public int move_forward;
+    public int move_backwards;
+    public int rotate_left;
+    public int rotate_right;
 }

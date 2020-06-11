@@ -13,6 +13,7 @@ using Random = System.Random;
 using System.IO;
 using Assets.Server_controller;
 
+
 namespace ConsoleApplication1
 {
     public class UdpSocket
@@ -141,7 +142,7 @@ namespace ConsoleApplication1
             _socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
         }
 
-public void SendImageTo(string targetIp, int targetPort, byte[] image)
+        public void SendImageTo(string targetIp, int targetPort, byte[] image)
         {
             var target = new IPEndPoint(IPAddress.Parse(targetIp), targetPort);
             SendImageToProcess(target, image);
@@ -156,7 +157,7 @@ public void SendImageTo(string targetIp, int targetPort, byte[] image)
                 {
                     byte[] imageBytes1 = data.Take(64488).ToArray();
                     byte[] imageBytes2 = data.Skip(64488).Take(data.Length - 64488).ToArray();
-                    
+
                     SendImageToProcess(target, imageBytes1);
                     SendImageToProcess(target, imageBytes2);
                 }
@@ -164,15 +165,15 @@ public void SendImageTo(string targetIp, int targetPort, byte[] image)
                 {
 
                     var sendState = new State(_bufSize);
-                    
+
                     byte[] header = Encoding.ASCII.GetBytes("255255255255");
-                    
+
                     // TODO try to remove a copy of data to save performance
-                    byte [] data_send = header.Concat(data).ToArray();
+                    byte[] data_send = header.Concat(data).ToArray();
                     Debug.Log("ok");
                     _socket.BeginSendTo(data_send, 0, data_send.Length, SocketFlags.None, target, (ar) =>
                     {
-                        var so = (State) ar.AsyncState;
+                        var so = (State)ar.AsyncState;
                         try
                         {
                             var bytes = _socket.EndSend(ar);
@@ -477,7 +478,6 @@ public void SendImageTo(string targetIp, int targetPort, byte[] image)
              * Message id = 201 answer to a connection request
              */
             var rcvString = Encoding.ASCII.GetString(so.Buffer, 0, nBytes);
-
             if (!Message.IsMessage(rcvString))
             {
                 /*
@@ -600,7 +600,7 @@ public void SendImageTo(string targetIp, int targetPort, byte[] image)
 
                             break;
                         case 102:
-                            Debug.Log(rcvMessage.message);
+                            controllerOmni.jsonMovement = rcvMessage.message;
                             break;
 
                         default:
