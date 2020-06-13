@@ -64,6 +64,7 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\Controllers\Perso2Controller.cs" />
     <Compile Include="Assets\Scripts\Controllers\PersoController.cs" />
+    <Compile Include="Assets\Scripts\Controllers\Server_manager.cs" />
     <Compile Include="Assets\Scripts\Controllers\controllerCamera.cs" />
     <Compile Include="Assets\Scripts\Controllers\controllerOmni.cs" />
     <Compile Include="Assets\Scripts\Server_controller\ConnectionMessage.cs" />

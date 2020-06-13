@@ -7,8 +7,13 @@ using ConsoleApplication1;
 using UnityEngine;
 using UnityEngine.UI;
 
+
 public class controllerOmni : MonoBehaviour
 {
+    // bool that check if server is online
+    public static bool isServerActive = false;
+
+
     public GameObject robot;
     public float rotationSpeed = 10;
     public float speed = 10;
@@ -18,13 +23,6 @@ public class controllerOmni : MonoBehaviour
     float z;
     public static string jsonMovement = "{\"move_forward\": \"0\", \"move_backwards\": \"0\", \"rotate_left\": \"0\", \"rotate_right\": \"0\"}";
     Movement robotMovement = JsonUtility.FromJson<Movement>(jsonMovement);
-
-    // Variables for server
-    public Text IP_input;
-    public Text port_input;
-    public Text password_input;
-    public string sIP = "127.0.0.1";
-    public int sPort = 50000;
 
     private UdpSocket server = new UdpSocket();
 
@@ -42,12 +40,6 @@ public class controllerOmni : MonoBehaviour
     [SerializeField] private LayerMask layers;
 
 
-
-    void Start()
-    {
-        server.Start(sIP, sPort, "test", verbose: true);
-        Debug.Log("server started");
-    }
 
     // Update is called once per frame
     void Update()
@@ -167,32 +159,38 @@ public class controllerOmni : MonoBehaviour
         if (forward_right_hit)
         {
             Debug.Log("aie rouge");
+            Debug.Log(hit_forward_right.distance);
             
             //transform.Rotate(-Vector3.up);
         }
         if (forward_left_hit)
         {
             Debug.Log("aie bleu");
+            Debug.Log(hit_forward_right.distance);
             // transform.Rotate(-Vector3.up);
         }
         if (left_hit)
         {
             Debug.Log("aie vert");
+            Debug.Log(hit_left.distance);
             //    transform.Rotate(-Vector3.up);
         }
         if (right_hit)
         {
             Debug.Log("aie jaune");
+            Debug.Log(hit_right.distance);
             //transform.Rotate(-Vector3.up);
         }
         if (left_hit_backwards)
         {
             Debug.Log("aie magenta");
+            Debug.Log(hit_left_backwards.distance);
             //    transform.Rotate(-Vector3.up);
         }
         if (right_hit_backwards)
         {
             Debug.Log("aie gris");
+            Debug.Log(hit_right_backwards.distance);
             //transform.Rotate(-Vector3.up);
         }
     }
