@@ -71,6 +71,7 @@
     <Compile Include="Assets\Scripts\Server_controller\Message.cs" />
     <Compile Include="Assets\Scripts\Server_controller\UdpSocket.cs" />
     <Compile Include="Assets\Scripts\SnapShotCamera.cs" />
+    <Compile Include="Assets\Scripts\UI_Manager.cs" />
     <Compile Include="Assets\_Barking_Dog\Common Scripts\Turn_Move.cs" />
     <None Include="Assets\JsonDotNet\link.xml" />
     <None Include="Assets\BodyGuards\ReadMe.txt.txt" />
