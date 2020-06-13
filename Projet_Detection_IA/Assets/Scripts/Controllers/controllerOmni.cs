@@ -118,10 +118,12 @@ public class controllerOmni : MonoBehaviour
 
     void Sensors()
     {
-        RaycastHit hit1;
-        RaycastHit hit2;
-        RaycastHit hit3;
-        RaycastHit hit4;
+        RaycastHit hit_forward_right;
+        RaycastHit hit_forward_left;
+        RaycastHit hit_left;
+        RaycastHit hit_right;
+        RaycastHit hit_left_backwards;
+        RaycastHit hit_right_backwards;
 
         //Vector3 offset2 = new Vector3(1.4f, 0, 0);
         //Vector3 offset4 = new Vector3(0, 0, 0);
@@ -129,47 +131,68 @@ public class controllerOmni : MonoBehaviour
 
         // Directions des raycast : bleu et rouge > direction 1
         // Vert : direction 3 - Jaune : direction 4
-        var direction1 = transform.TransformDirection(Vector3.forward) * rayDistance;
-        var direction3 = transform.TransformDirection(Vector3.left) * rayDistance;
-        var direction4 = transform.TransformDirection(Vector3.right) * rayDistance;
+        var forward_ray_direction = transform.TransformDirection(Vector3.forward) * rayDistance;
+        var left_ray_direction = transform.TransformDirection(Vector3.left) * rayDistance;
+        var right_ray_direction = transform.TransformDirection(Vector3.right) * rayDistance;
         //Origines des rayons
-        Vector3 origine1 = transform.position + transform.up * 0.5f + transform.forward * 0.1f;
-        Vector3 origine2 = transform.position - transform.right * 1.5f + transform.up * 0.5f + transform.forward * 0.1f;
-        Vector3 origine3 = transform.position - transform.right * 1.5f + transform.up * 0.5f;
-        Vector3 origine4 = transform.position + transform.up * 0.5f;
+        Vector3 origine_forward_right = transform.position + transform.up * 0.8f + transform.forward * 1.2f;
+        Vector3 origine_forward_left = transform.position - transform.right * 0.6f + transform.up * 0.8f + transform.forward * 1.2f;
+        Vector3 origine_left = transform.position - transform.right * 0.9f + transform.up * 0.8f + transform.forward * 0.95f;
+        Vector3 origine_right = transform.position + transform.right * 0.3f + transform.up * 0.8f + transform.forward * 0.95f;
+        Vector3 origine_left_backwards = transform.position - transform.right * 0.9f + transform.up * 0.8f + transform.forward * 0.4f;
+        Vector3 origine_right_backwards = transform.position+ transform.right * 0.3f + transform.up * 0.8f + transform.forward * 0.4f;
         //Affichage des rayons
-        Debug.DrawRay(origine1, direction1, Color.red);
-        Debug.DrawRay(origine2, direction1, Color.blue);
-        Debug.DrawRay(origine3, direction3, Color.green);
-        Debug.DrawRay(origine4, direction4, Color.yellow);
+        Debug.DrawRay(origine_forward_right, forward_ray_direction, Color.red);
+        Debug.DrawRay(origine_forward_left, forward_ray_direction, Color.blue);
+        Debug.DrawRay(origine_left, left_ray_direction, Color.green);
+        Debug.DrawRay(origine_right, right_ray_direction, Color.yellow);
+        Debug.DrawRay(origine_left_backwards, left_ray_direction, Color.magenta);
+        Debug.DrawRay(origine_right_backwards, right_ray_direction, Color.gray);
         //Détection d'objets pour chaque rayon
         // Physics.Raycast renvoie un booléen True si le rayon touche quelque chose
         //rayon rouge
-        bool touche1 = Physics.Raycast(origine1, direction1, out hit1, rayDistance, layers);
+        bool forward_right_hit = Physics.Raycast(origine_forward_right, forward_ray_direction, out hit_forward_right, rayDistance, layers);
         //rayon bleu
-        bool touche2 = Physics.Raycast(origine2, direction1, out hit2, rayDistance, layers);
+        bool forward_left_hit = Physics.Raycast(origine_forward_left, forward_ray_direction, out hit_forward_left, rayDistance, layers);
         //rayon vert
-        bool touche3 = Physics.Raycast(origine3, direction3, out hit3, rayDistance, layers);
+        bool left_hit = Physics.Raycast(origine_left, left_ray_direction, out hit_left, rayDistance, layers);
         //rayon jaune
-        bool touche4 = Physics.Raycast(origine4, direction4, out hit4, rayDistance, layers);
-        if (touche1)
+        bool right_hit = Physics.Raycast(origine_right, right_ray_direction, out hit_right, rayDistance, layers);
+        //rayon magenta
+        bool left_hit_backwards = Physics.Raycast(origine_left_backwards, left_ray_direction, out hit_left_backwards, rayDistance, layers);
+        //rayon gris
+        bool right_hit_backwards = Physics.Raycast(origine_right_backwards, right_ray_direction, out hit_right_backwards, rayDistance, layers);
+
+
+        if (forward_right_hit)
         {
             Debug.Log("aie rouge");
+            
             //transform.Rotate(-Vector3.up);
         }
-        if (touche2)
+        if (forward_left_hit)
         {
             Debug.Log("aie bleu");
             // transform.Rotate(-Vector3.up);
         }
-        if (touche3)
+        if (left_hit)
         {
             Debug.Log("aie vert");
             //    transform.Rotate(-Vector3.up);
         }
-        if (touche4)
+        if (right_hit)
         {
             Debug.Log("aie jaune");
+            //transform.Rotate(-Vector3.up);
+        }
+        if (left_hit_backwards)
+        {
+            Debug.Log("aie magenta");
+            //    transform.Rotate(-Vector3.up);
+        }
+        if (right_hit_backwards)
+        {
+            Debug.Log("aie gris");
             //transform.Rotate(-Vector3.up);
         }
     }
