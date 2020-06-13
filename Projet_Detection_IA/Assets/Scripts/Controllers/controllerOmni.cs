@@ -11,6 +11,7 @@ public class controllerOmni : MonoBehaviour
 {
     public GameObject robot;
     public float rotationSpeed = 10;
+    public float speed = 10;
     Vector3 currentEulerAngles;
     float x;
     float y;
@@ -71,8 +72,10 @@ public class controllerOmni : MonoBehaviour
         Forward(robotMovement.move_forward, robotMovement.move_backwards);
         Rotate(robotMovement.rotate_left, robotMovement.rotate_right);
         //Sensors();
+        Sensors();
 
     }
+
 
     private void LateUpdate()
     {
@@ -87,12 +90,12 @@ public class controllerOmni : MonoBehaviour
     {
         if (forward == 1)
         {
-            transform.Translate(Vector3.forward * ((Time.deltaTime) * 2));
+            transform.Translate(Vector3.forward * ((Time.deltaTime) * speed));
 
         }
         else if (backwards == 1)
         {
-            transform.Translate(-Vector3.forward * ((Time.deltaTime) * 2));
+            transform.Translate(-Vector3.forward * ((Time.deltaTime) * speed));
 
         }
     }
@@ -101,6 +104,7 @@ public class controllerOmni : MonoBehaviour
     {
         if (left == 1)
         {
+            
             transform.Rotate(-Vector3.up * rotationSpeed * Time.deltaTime);
             //modifying the Vector3, based on input multiplied by speed and time
 
@@ -150,31 +154,23 @@ public class controllerOmni : MonoBehaviour
         bool touche4 = Physics.Raycast(origine4, direction4, out hit4, rayDistance, layers);
         if (touche1)
         {
-
             Debug.Log("aie rouge");
             //transform.Rotate(-Vector3.up);
-
         }
         if (touche2)
         {
-
             Debug.Log("aie bleu");
             // transform.Rotate(-Vector3.up);
-
         }
         if (touche3)
         {
-
             Debug.Log("aie vert");
             //    transform.Rotate(-Vector3.up);
-
         }
         if (touche4)
         {
-
             Debug.Log("aie jaune");
             //transform.Rotate(-Vector3.up);
-
         }
     }
 
